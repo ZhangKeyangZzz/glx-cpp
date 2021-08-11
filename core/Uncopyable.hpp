@@ -11,48 +11,34 @@
  */
 
 /**
- * @file mem_utilities.hpp
+ * @file Uncopyable.hpp
  * @date 2021-8-8
  * @author ZhangKeyangZzz
- * @version 1.0 Debug
+ * @version 1.0 release
  */
 
-#ifndef __GLX__CORE__MEM__UTILITIES__HPP__
-#define __GLX__CORE__MEM__UTILITIES__HPP__
-#include <new>
-#include <cstdlib>
-#include <cstring>
-#include "basic_types.hpp"
+#ifndef __DSLIB__UNCOPYABLE__HPP__
+#define __DSLIB__UNCOPYABLE__HPP__
 
-namespace glx {
-    namespace mem {
-        /**
-         * Allocate a contiguous block of heap memory to hold at least ```count``` elements.
-         * @author ZhangKeyangZzz
-         * @param[in] count The specified elements count.
-         * @return Returns the address of the block.
-         * @note If some errors is ocurred, throws the std::bad_alloc exception.
-         */
-        template <typename T>
-        T* Allocate(uint32 count) noexcept {
-            auto totalBytes = uint32(count * sizeof(T));
-            auto ptr        = new byte[totalBytes];
-            return reinterpret_cast<T*>(ptr);
-        }
-
-        /**
-         * Deallocate a contiguous block of heap memory.
-         * @author ZhangKeyangZzz
-         * @param[in] ptr The the address of the block.
-         */
-        void Deallocate(void* ptr) noexcept {
-            auto rawPtr = reinterpret_cast<byte*>(ptr);
-            delete[] rawPtr;
-        }
-
-        
-    }
+namespace dslib 
+{
+    /**
+     * This structure is used to disable copy semantics in cpp.
+     * @date 2021-8-8
+     * @author ZhangKeyangZzz
+     * @version 1.0 release
+     * @note Although copy semantics is necessary for most containers, 
+     *       it's not the main concern for the details in datastructures.
+     *       In this repository, I just ignore these features for convenience.
+     */
+    struct Uncopyable {
+        Uncopyable() = default;
+        Uncopyable(Uncopyable const&) = delete;
+        Uncopyable(Uncopyable &&) = delete;
+        Uncopyable& operator=(Uncopyable const&) = delete;
+        Uncopyable& operator=(Uncopyable&&) = delete;
+        ~Uncopyable() = default;
+    };
 }
 
 #endif
-
