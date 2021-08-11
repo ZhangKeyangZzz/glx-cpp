@@ -11,6 +11,8 @@
  */
 
 /**
+ * This file provides almost of raw memory utility functions in sub-namespace `mem`.
+ * 
  * @file mem_utilities.hpp
  * @date 2021-8-8
  * @author ZhangKeyangZzz
@@ -19,11 +21,12 @@
 
 #ifndef __GLX__CORE__MEM__UTILITIES__HPP__
 #define __GLX__CORE__MEM__UTILITIES__HPP__
-#include <new>
-#include <cstdlib>
-#include <cstring>
 #include "basic_types.hpp"
 #include "status_code.hpp"
+#include <new>
+#include <utility>
+#include <cstdlib>
+#include <cstring>
 
 namespace glx {
     namespace mem {
@@ -31,6 +34,7 @@ namespace glx {
          * Allocate a contiguous block of heap memory to hold at least ```count``` elements.
          * @author ZhangKeyangZzz
          * @param[in] count The specified elements count.
+         * @tparam T The type of elements in both array.
          * @return Returns the address of the block.
          * @note If some errors is ocurred, throws the std::bad_alloc exception.
          */
@@ -45,6 +49,7 @@ namespace glx {
          * Deallocate a contiguous block of heap memory.
          * @author ZhangKeyangZzz
          * @param[in] ptr The the address of the block.
+         * @tparam T The type of elements in both array.
          */
         inline void deallocate(void* ptr) noexcept {
             auto rawPtr = reinterpret_cast<byte*>(ptr);
@@ -56,6 +61,7 @@ namespace glx {
          * @author ZhangKeyangZzz
          * @param[in] object The specified memory position.
          * @param[in] args The arguments of that constructor.
+         * @tparam T The type of elements in both array.
          */
         template <typename T, typename... Args>
         void construct(T* object, Args&&... args) noexcept {
@@ -66,24 +72,149 @@ namespace glx {
          * Destructs an object at the specified position.
          * @author ZhangKeyangZzz
          * @param[in] object The specified memory position.
+         * @tparam T The type of elements in both array.
          */
         template <typename T>
         void destruct(T* object) noexcept {
             object->~T();
         }
 
+        ///-------------------------------------------------------------------------------------
+        ///
+        /// copy_of_range functions implementations.
+        ///
+        ///-------------------------------------------------------------------------------------
+        namespace __ignore {
+            /// This function is a part of implementation of memory utility function `copy_of_range`.
+            /// For POD(Plain Of Data), the only thing we need to do is copying the memory bytes to bytes, 
+            template <typename T>
+            void __copy_of_range_unchecked(T *const dst, const T* src, uint32 dstIndex, uint32 srcIndex, uint32 length, std::true_type) noexcept {
+                auto totalBytes = length * sizeof(T);
+                memmove(dst, src, totalBytes);
+            }
+
+            /// This function is a part of implementation of memory utility function `copy_of_range`.
+            /// For non-trivially data, we need to call its `operator=` function to override these objects.
+            /// NOTE: If dst[dstIndex] is not initialized, the behaviour of this function is UNDEFINED.
+            template <typename T>
+            void __copy_of_range_unchecked(T *const dst, const T* src, uint32 dstIndex, uint32 srcIndex, uint32 length, std::false_type) noexcept {
+                if (dst > src && dst < src + length) {
+                    while (length > 0) {
+                        dst[dstIndex + length - 1] = src[srcIndex + length - 1];
+                        length--;
+                    }
+                } else {
+                    while (length > 0) {
+                        dst[dstIndex] = src[srcIndex];
+                        length--;
+                    }
+                }
+            }
+        }
+
         /**
          * Copy specified count of objects from `src[srcIndex]` to `dst[dstIndex]`.
          * @author ZhangKeyangZzz
-         * @param[in] dst The destination position.
-         * @param[in] src The source position.
+         * @param[in] dst The destination array.
+         * @param[in] src The source array.
          * @param[in] srcIndex The offset of source position.
          * @param[in] dstIndex The offset of destination position.
          * @param[in] length The length of copy section.
+         * @tparam T The type of elements in both array.
          * @return Return the status code representing whether the operation was successful.
          */
-        template <typename D, typename S>
-        int copy_of_range(D *const dst, const S* src, uint32 dstIndex, uint32 srcIndex, uint32 length) {
+        template <typename T>
+        int copy_of_range(T *const dst, const T* src, uint32 dstIndex, uint32 srcIndex, uint32 length) noexcept {
+            if (dst == nullptr || src == nullptr || length == 0) {
+                return StatusCode::IllegalArgument;
+            }
+            using IsTrivial = typename std::is_trivial<T>::type;
+            __ignore::__copy_of_range_unchecked(dst, src, dstIndex, srcIndex, length, IsTrivial());
+            return StatusCode::Success;
+        }
+
+        /**
+         * Copy specified count of objects from `arr[srcIndex]` to `arr[dstIndex]`.
+         * @author ZhangKeyangZzz
+         * @param[in] arr A pointer to the array.
+         * @param[in] srcIndex The offset of source position.
+         * @param[in] dstIndex The offset of destination position.
+         * @param[in] length The length of copy section.
+         * @tparam T The type of elements in both array.
+         * @return Return the status code representing whether the operation was successful.
+         */
+        template <typename T>
+        int copy_of_range(T *const arr, uint32 dstIndex, uint32 srcIndex, uint32 length) noexcept {
+            if (arr == nullptr || length == 0) {
+                return StatusCode::IllegalArgument;
+            }
+            using IsTrivial = typename std::is_trivial<T>::type;
+            __ignore::__copy_of_range_unchecked(arr, arr, dstIndex, srcIndex, length, IsTrivial());
+            return StatusCode::Success;
+        }
+
+        /**
+         * Fill the initialized buffer `arr[index .. index + length) with the specified value.`
+         * @author ZhangKeyangZzz
+         * @param[in] arr The specified buffer.
+         * @param[in] index The specified index.
+         * @param[in] length The length of the buffer.
+         * @param[in] value The target value.
+         * @tparam T The type of elements in the array.
+         * @return Return the status code representing whether the operation was successful.
+         */
+        template <typename T>
+        int fill(T *const arr, uint32 index, uint32 length, T &const value) noexcept {
+            while (length > 0) {
+                arr[index + length - 1] = value;
+            }
+        }
+
+        ///-------------------------------------------------------------------------------------
+        ///
+        /// uninitialized_fill functions implementations.
+        ///
+        ///-------------------------------------------------------------------------------------
+        namespace __ignore {
+            /// This function is a part of implementation of memory utility function `uninitialized_fill`.
+            /// For trivially data, the only thing we need to do is copying the memory bytes to bytes, 
+            template <typename T>
+            void __uninitialized_fill_unchecked(T *const arr, uint32 index, uint32 length, T &const value, std::true_type) noexcept {
+                auto elementSize = sizeof(T);
+                while (length > 0) {
+                    memmove(arr + index + length - 1, &value, elementSize);
+                    length--;
+                }
+            }
+
+            /// This function is a part of implementation of memory utility function `uninitialized_fill`.
+            /// For non-trivially data, we need to call utility function `construct` to construct these objects.
+            /// NOTE: If dst[dstIndex] is already initialized, the behaviour of this function is UNDEFINED.
+            template <typename T>
+            void __uninitialized_fill_unchecked(T *const arr, uint32 index, uint32 length, T &const value, std::false_type) noexcept {
+                while (length > 0) {
+                    construct(arr + index + length - 1, value);
+                }
+            }
+        }
+
+        /**
+         * Fill the uninitialized buffer `arr[index .. index + length) with the specified value.`
+         * @author ZhangKeyangZzz
+         * @param[in] arr The specified buffer.
+         * @param[in] index The specified index.
+         * @param[in] length The length of the buffer.
+         * @param[in] value The target value.
+         * @tparam T The type of elements in the array.
+         * @return Return the status code representing whether the operation was successful.
+         */
+        template <typename T>
+        int uninitialized_fill(T *const arr, uint32 index, uint32 length, T &const value) noexcept {
+            if (arr == nullptr) {
+                return StatusCode::IllegalArgument;
+            }
+            using IsTrivial = typename std::is_trivial<T>::type;
+            __ignore::__uninitialized_fill_unchecked(arr, index, length, value, IsTrivial());
             return StatusCode::Success;
         }
     }
