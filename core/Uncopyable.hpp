@@ -11,17 +11,16 @@
  */
 
 /**
- * @file Uncopyable.hpp
+ * @file uncopyable.hpp
  * @date 2021-8-8
  * @author ZhangKeyangZzz
  * @version 1.0 release
  */
 
-#ifndef __DSLIB__UNCOPYABLE__HPP__
-#define __DSLIB__UNCOPYABLE__HPP__
+#ifndef __GLX__CORE__UNCOPYABLE__HPP__
+#define __GLX__CORE__UNCOPYABLE__HPP__
 
-namespace dslib 
-{
+namespace glx {
     /**
      * This structure is used to disable copy semantics in cpp.
      * @date 2021-8-8

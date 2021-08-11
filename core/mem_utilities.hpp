@@ -34,7 +34,7 @@ namespace glx {
          * @note If some errors is ocurred, throws the std::bad_alloc exception.
          */
         template <typename T>
-        T* Allocate(uint32 count) noexcept {
+        inline T* Allocate(uint32 count) noexcept {
             auto totalBytes = uint32(count * sizeof(T));
             auto ptr        = new byte[totalBytes];
             return reinterpret_cast<T*>(ptr);
@@ -45,12 +45,25 @@ namespace glx {
          * @author ZhangKeyangZzz
          * @param[in] ptr The the address of the block.
          */
-        void Deallocate(void* ptr) noexcept {
+        inline void Deallocate(void* ptr) noexcept {
             auto rawPtr = reinterpret_cast<byte*>(ptr);
             delete[] rawPtr;
         }
 
-        
+        /**
+         * Copy specified count of objects from `src[srcIndex]` to `dst[dstIndex]`.
+         * @author ZhangKeyangZzz
+         * @param[in] dst The destination position.
+         * @param[in] src The source position.
+         * @param[in] srcIndex The offset of source position.
+         * @param[in] dstIndex The offset of destination position.
+         * @param[in] length The length of copy section.
+         * @return Return the status code representing whether the operation was successful.
+         */
+        template <typename D, typename S>
+        int Copy(D *const dst, const S* src, uint32 dstIndex, uint32 srcIndex, uint32 length) {
+            
+        }
     }
 }
 

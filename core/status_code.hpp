@@ -11,16 +11,16 @@
  */
 
 /**
- * @file StatusCode.hpp
+ * @file status_code.hpp
  * @date 2021-8-8
  * @author ZhangKeyangZzz
  * @version 1.0 release
  */
 
-#ifndef __DSLIB__STATUSCODE__HPP__
-#define __DSLIB__STATUSCODE__HPP__
+#ifndef __GLX__CORE__STATUSCODE__HPP__
+#define __GLX__CORE__STATUSCODE__HPP__
 
-namespace dslib {
+namespace glx {
 
     /**
      * This enumerator is used to indicate a operation status.
