@@ -34,7 +34,7 @@ namespace glx {
         Success          = 0, /// The operation was executed successfully.
         IllegalArgument  = 1, /// At least one argument is invaild.
         IllegalState     = 2, /// Some data is in illegal state.
-        IndexOutOfRange  = 3, /// Index out of bounds 
+        IndexOutOfRange  = 3, /// Index out of range. 
     };
 }
 
