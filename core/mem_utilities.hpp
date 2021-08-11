@@ -23,6 +23,7 @@
 #include <cstdlib>
 #include <cstring>
 #include "basic_types.hpp"
+#include "status_code.hpp"
 
 namespace glx {
     namespace mem {
@@ -34,7 +35,7 @@ namespace glx {
          * @note If some errors is ocurred, throws the std::bad_alloc exception.
          */
         template <typename T>
-        inline T* Allocate(uint32 count) noexcept {
+        inline T* allocate(uint32 count) noexcept {
             auto totalBytes = uint32(count * sizeof(T));
             auto ptr        = new byte[totalBytes];
             return reinterpret_cast<T*>(ptr);
@@ -45,9 +46,30 @@ namespace glx {
          * @author ZhangKeyangZzz
          * @param[in] ptr The the address of the block.
          */
-        inline void Deallocate(void* ptr) noexcept {
+        inline void deallocate(void* ptr) noexcept {
             auto rawPtr = reinterpret_cast<byte*>(ptr);
             delete[] rawPtr;
+        }
+
+        /**
+         * Constructs an object at the specified position using the specified parameters.
+         * @author ZhangKeyangZzz
+         * @param[in] object The specified memory position.
+         * @param[in] args The arguments of that constructor.
+         */
+        template <typename T, typename... Args>
+        void construct(T* object, Args&&... args) noexcept {
+            new (object) T(std::forward<Args>(args)...);
+        }
+
+        /**
+         * Destructs an object at the specified position.
+         * @author ZhangKeyangZzz
+         * @param[in] object The specified memory position.
+         */
+        template <typename T>
+        void destruct(T* object) noexcept {
+            object->~T();
         }
 
         /**
@@ -61,8 +83,8 @@ namespace glx {
          * @return Return the status code representing whether the operation was successful.
          */
         template <typename D, typename S>
-        int Copy(D *const dst, const S* src, uint32 dstIndex, uint32 srcIndex, uint32 length) {
-            
+        int copy_of_range(D *const dst, const S* src, uint32 dstIndex, uint32 srcIndex, uint32 length) {
+            return StatusCode::Success;
         }
     }
 }

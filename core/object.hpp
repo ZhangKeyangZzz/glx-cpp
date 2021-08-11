@@ -24,16 +24,16 @@
 namespace glx {
     struct Object {
         static void* operator new(size_t totalBytes) noexcept {
-            return mem::Allocate<byte>(totalBytes);
+            return mem::allocate<byte>(totalBytes);
         }
         static void* operator new[](size_t totalBytes) noexcept {
-            return mem::Allocate<byte>(totalBytes);
+            return mem::allocate<byte>(totalBytes);
         }
         static void operator delete(void* ptr) noexcept {
-            mem::Deallocate(ptr);
+            mem::deallocate(ptr);
         }
         static void operator delete[](void* ptr) noexcept {
-            mem::Deallocate(ptr);
+            mem::deallocate(ptr);
         }
         virtual ~Object() noexcept = default;
     };
