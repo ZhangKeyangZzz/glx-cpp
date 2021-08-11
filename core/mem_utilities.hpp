@@ -35,8 +35,8 @@ namespace glx {
          */
         template <typename T>
         T* Allocate(uint32 count) noexcept {
-            auto bytes = uint32(count * sizeof(T));
-            auto ptr   = new uint8[bytes];
+            auto totalBytes = uint32(count * sizeof(T));
+            auto ptr        = new byte[totalBytes];
             return reinterpret_cast<T*>(ptr);
         }
 
@@ -47,7 +47,7 @@ namespace glx {
          */
         template <typename T>
         void Deallocate(T* ptr) noexcept {
-            auto rawPtr = reinterpret_cast<uint8*>(ptr);
+            auto rawPtr = reinterpret_cast<byte*>(ptr);
             delete[] rawPtr;
         }
     }
