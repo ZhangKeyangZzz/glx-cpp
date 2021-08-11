@@ -180,7 +180,7 @@ namespace glx {
         ///
         ///-------------------------------------------------------------------------------------
         namespace __ignore {
-            /// This function is a part of implementation of memory utility function `uninitialized_fill`.
+            /// This function is a part of implementation of memory utility function `uninitialized_copy_of_range`.
             /// For trivially data, the only thing we need to do is copying the memory bytes to bytes, 
             template <typename T>
             void __uninitialized_copy_of_range_unchecked(T *const dst, const T* src, uint32 dstIndex, uint32 srcIndex, uint32 length, std::true_type) noexcept {
@@ -188,7 +188,7 @@ namespace glx {
                 memmove(dst, src, totalBytes);
             }
 
-            /// This function is a part of implementation of memory utility function `uninitialized_fill`.
+            /// This function is a part of implementation of memory utility function `uninitialized_copy_of_range`.
             /// For non-trivially data, we need to call utility function `construct` to construct these objects.
             /// NOTE: If dst[dstIndex] is already initialized, the behaviour of this function is UNDEFINED.
             template <typename T>
@@ -254,11 +254,11 @@ namespace glx {
 
         ///-------------------------------------------------------------------------------------
         ///
-        /// uninitialized_fill functions implementations.
+        /// uninitialized_fill_of_range functions implementations.
         ///
         ///-------------------------------------------------------------------------------------
         namespace __ignore {
-            /// This function is a part of implementation of memory utility function `uninitialized_fill`.
+            /// This function is a part of implementation of memory utility function `uninitialized_fill_of_range`.
             /// For trivially data, the only thing we need to do is copying the memory bytes to bytes, 
             template <typename T>
             void __uninitialized_fill_of_range_unchecked(T *const arr, uint32 index, uint32 length, T &const value, std::true_type) noexcept {
@@ -269,7 +269,7 @@ namespace glx {
                 }
             }
 
-            /// This function is a part of implementation of memory utility function `uninitialized_fill`.
+            /// This function is a part of implementation of memory utility function `uninitialized_fill_of_range`.
             /// For non-trivially data, we need to call utility function `construct` to construct these objects.
             /// NOTE: If dst[dstIndex] is already initialized, the behaviour of this function is UNDEFINED.
             template <typename T>
