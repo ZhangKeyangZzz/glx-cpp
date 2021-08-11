@@ -104,6 +104,7 @@ namespace glx {
         int fill_of_range(T *const arr, uint32 index, uint32 length, T &const value) noexcept {
             while (length > 0) {
                 arr[index + length - 1] = value;
+                length--;
             }
         }
 
@@ -287,6 +288,7 @@ namespace glx {
             void __uninitialized_fill_of_range_unchecked(T *const arr, uint32 index, uint32 length, T &const value, std::false_type) noexcept {
                 while (length > 0) {
                     construct(arr + index + length - 1, value);
+                    length--;
                 }
             }
         }
