@@ -98,14 +98,18 @@ namespace glx {
             /// NOTE: If dst[dstIndex] is not initialized, the behaviour of this function is UNDEFINED.
             template <typename T>
             void __copy_of_range_unchecked(T *const dst, const T* src, uint32 dstIndex, uint32 srcIndex, uint32 length, std::false_type) noexcept {
-                if (dst > src && dst < src + length) {
+                T* dstPtr = const_cast<T*>(dst + dstIndex);
+                T* srcPtr = const_cast<T*>(src + srcIndex);
+                if (dstPtr > srcPtr && dstPtr < srcPtr + length) {
                     while (length > 0) {
-                        dst[dstIndex + length - 1] = src[srcIndex + length - 1];
+                        dstPtr[length - 1] = srcPtr[length - 1];
                         length--;
                     }
                 } else {
                     while (length > 0) {
-                        dst[dstIndex] = src[srcIndex];
+                        *dstPtr = *srcPtr;
+                        dstPtr++;
+                        srcPtr++;
                         length--;
                     }
                 }
