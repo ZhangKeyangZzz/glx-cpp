@@ -65,28 +65,27 @@ namespace glx {
 
     struct UserData final : public UserObject {
         char bytes[128];
-        uint32 i32;
+        int i32;
         float f32;
         double f64;
 
         UserData() noexcept : UserObject(), i32(0), f32(0), f64(0) {
-            auto len = sizeof(this->bytes, this->bytes[0]);
-            memset(this->bytes, 0, len);
+            memset(this->bytes, 0, 128);
         }
 
-        UserData(uint32 i32, float f32, double f64, const char *bytes) noexcept : UserObject(), i32(i32), f32(f32), f64(f64) {
+        UserData(unsigned i32, float f32, double f64, const char *bytes) noexcept : UserObject(), i32(i32), f32(f32), f64(f64) {
             auto len = strlen(bytes);
             strncpy(this->bytes, bytes, len + 1);
         }
 
         UserData(UserData const& rhs) noexcept : UserObject(rhs), i32(rhs.i32), f32(rhs.f32), f64(rhs.f64) {
-            auto len = sizeof(this->bytes, this->bytes[0]);
-            memcpy(this->bytes, rhs.bytes, len);
+            auto len = strlen(rhs.bytes);
+            strncpy(this->bytes, rhs.bytes, len + 1);
         }
 
-        UserData(UserData&& rhs) noexcept : UserObject(std::move(rhs)),i32(rhs.i32), f32(rhs.f32), f64(rhs.f64) {
-            auto len = sizeof(this->bytes, this->bytes[0]);
-            memcpy(this->bytes, rhs.bytes, len);
+        UserData(UserData&& rhs) noexcept : UserObject(std::move(rhs)), i32(rhs.i32), f32(rhs.f32), f64(rhs.f64) {
+            auto len = strlen(rhs.bytes);
+            strncpy(this->bytes, rhs.bytes, len + 1);
         }
 
         UserData& operator=(UserData const& rhs) noexcept {
@@ -95,8 +94,8 @@ namespace glx {
                 this->i32 = rhs.i32;
                 this->f32 = rhs.f32;
                 this->f64 = rhs.f64;
-                auto len = sizeof(this->bytes, this->bytes[0]);
-                memcpy(this->bytes, rhs.bytes, len);
+                auto len = strlen(rhs.bytes);
+                strncpy(this->bytes, rhs.bytes, len + 1);
             }
             return *this;
         }
@@ -107,8 +106,8 @@ namespace glx {
                 this->i32 = rhs.i32;
                 this->f32 = rhs.f32;
                 this->f64 = rhs.f64;
-                auto len = sizeof(this->bytes, this->bytes[0]);
-                memcpy(this->bytes, rhs.bytes, len);
+                auto len = strlen(rhs.bytes);
+                strncpy(this->bytes, rhs.bytes, len + 1);
             }
             return *this;
         }

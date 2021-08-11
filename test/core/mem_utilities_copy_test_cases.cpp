@@ -52,6 +52,29 @@ namespace {
         }
         deallocate(arr);
     }
+
+    void glx_mem_copy_of_range_case3_right_overlaping() {
+        UserData* arr = allocate<UserData>(128);
+        for (auto offset = 0; offset < 128; offset++) {
+            char str[128] = { 0 };
+            snprintf(str, 128, "hello, world! %d", offset);
+            construct(arr + offset, offset, offset * 10, offset * 100, str);
+        }
+
+        copy_of_range(arr, 0, 20, 108);
+
+        for (auto offset = 0; offset < 108; offset++) {
+            UserData& userData = arr[offset];
+            Assertion::assert_is_equals(userData.i32, 20 + offset);
+            Assertion::assert_is_equals(userData.f32, (20 + offset) * 10);
+            Assertion::assert_is_equals(userData.f64, (20 + offset) * 100);
+        }
+
+        for (auto offset = 0; offset < 128; offset++) {
+            destruct(arr + offset);
+        }
+        deallocate(arr);
+    }
 }
 
 int main(int argc, char *argv[]) {
