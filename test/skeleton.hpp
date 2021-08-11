@@ -33,34 +33,34 @@ namespace glx {
     };
 
     struct Assertion {
-        static inline void AssertTrue(bool cond) noexcept {
+        static inline void assert_true(bool cond) noexcept {
             if (cond != true) {
                 std::exit(TestStatusCode::IsNotTrue);
             }
         }
-        static inline void AssertFalse(bool cond) noexcept {
+        static inline void assert_false(bool cond) noexcept {
             if (cond != false) {
                 std::exit(TestStatusCode::IsNotFalse);
             }
         }
-        static inline void AssertIsNullptr(void* ptr) noexcept {
+        static inline void assert_is_nullptr(void* ptr) noexcept {
             if (ptr != nullptr) {
                 std::exit(TestStatusCode::IsNotNullptr);
             }
         }
-        static inline void AssertIsNotNullptr(void* ptr) noexcept {
+        static inline void assert_is_not_nullptr(void* ptr) noexcept {
             if (ptr == nullptr) {
                 std::exit(TestStatusCode::IsNotNullptr);
             }
         }
         template <typename T1, typename T2> 
-        static inline void AssertIsEquals(T1 const& lhs, T2 const& rhs) {
+        static inline void assert_is_equals(T1 const& lhs, T2 const& rhs) {
             if (lhs != rhs) {
                 std::exit(TestStatusCode::IsNotEquals);
             }
         }
         template <typename T1, typename T2> 
-        static inline void AssertIsNotEquals(T1 const& lhs, T2 const& rhs) {
+        static inline void assert_is_not_equals(T1 const& lhs, T2 const& rhs) {
             if (lhs == rhs) {
                 std::exit(TestStatusCode::IsEquals);
             }
