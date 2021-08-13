@@ -319,11 +319,14 @@ namespace glx {
         ///
         ///-------------------------------------------------------------------------------------
         namespace __ignore {
+            template <typename T>
             struct SimpleObjectDeleter {
-                void operator()(void const* ptr) { delete ptr; }
+                void operator()(T const* ptr) { delete ptr; }
             };
+
+            template <typename T>
             struct SimpleArrayDeleter {
-                void operator()(void const* ptr) { delete[] ptr; }
+                void operator()(T const* ptr) { delete[] ptr; }
             };
 
             ///
@@ -351,7 +354,7 @@ namespace glx {
             public:
                 UniqueBase<T, Dx>& operator=(UniqueBase<T, Dx> const& rhs) = delete;
                 UniqueBase<T, Dx>& operator=(UniqueBase<T, Dx>&& rhs) noexcept;
-                UniqueBase<T, Dx>& operator=(nullptr_t) noexcept;
+                UniqueBase<T, Dx>& operator=(std::nullptr_t) noexcept;
 
             public:
                 T* release() noexcept;
@@ -402,7 +405,7 @@ namespace glx {
 
             /// Clear this `UniqueBase`
             template <typename T, typename Dx>
-            UniqueBase<T, Dx>& UniqueBase<T, Dx>::operator=(nullptr_t) noexcept {
+            UniqueBase<T, Dx>& UniqueBase<T, Dx>::operator=(std::nullptr_t) noexcept {
                 reset();
                 return *this;
             }
@@ -468,10 +471,10 @@ namespace glx {
          * @tparam T The type of object in this `Unique`
          */
         template <typename T>
-        struct Unique : public __ignore::UniqueBase<T, __ignore::SimpleObjectDeleter> {
+        struct Unique : public __ignore::UniqueBase<T, __ignore::SimpleObjectDeleter<T>> {
         private:
-            using _Base = __ignore::UniqueBase<T, __ignore::SimpleObjectDeleter>;
-            using _Del  = __ignore::SimpleObjectDeleter;
+            using _Base = __ignore::UniqueBase<T, __ignore::SimpleObjectDeleter<T>>;
+            using _Del  = __ignore::SimpleObjectDeleter<T>;
         public:
             Unique(T* ptr) noexcept : _Base(ptr, _Del()) {}
             Unique(Unique<T> const&) = delete;
@@ -496,10 +499,10 @@ namespace glx {
          * @tparam T The type of objects in this `Unique`
          */
         template <typename T>
-        class Unique<T[]> : public __ignore::UniqueBase<T, __ignore::SimpleArrayDeleter> {
+        class Unique<T[]> : public __ignore::UniqueBase<T, __ignore::SimpleArrayDeleter<T>> {
         private:
-            using _Base = __ignore::UniqueBase<T, __ignore::SimpleArrayDeleter>;
-            using _Del  = __ignore::SimpleArrayDeleter;
+            using _Base = __ignore::UniqueBase<T, __ignore::SimpleArrayDeleter<T>>;
+            using _Del  = __ignore::SimpleArrayDeleter<T>;
         public:
             Unique(T* ptr) noexcept : _Base(ptr, _Del()) {}
             Unique(Unique<T> const&) = delete;
