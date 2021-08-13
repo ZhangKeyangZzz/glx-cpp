@@ -532,10 +532,10 @@ namespace glx {
          * @tparam Args The argument types.
          */
         template <typename T, typename... Args>
-		inline Unique<T> make_unique(Args&&... args) noexcept {
-			Unique<T> uniq(new T(std::forward<Args>(args)...));
-			return Unique<T>(std::move(uniq));
-		}
+        inline Unique<T> make_unique(Args&&... args) noexcept {
+            Unique<T> uniq(new T(std::forward<Args>(args)...));
+            return Unique<T>(std::move(uniq));
+        }
     }
 }
 
