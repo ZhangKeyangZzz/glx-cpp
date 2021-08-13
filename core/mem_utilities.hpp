@@ -451,7 +451,7 @@ namespace glx {
             /// Get the underlying deleter.
             template <typename T, typename Dx>
             Dx& UniqueBase<T, Dx>::get_deleter() noexcept {
-                return const_cast<T*>(
+                return const_cast<Dx&>(
                     static_cast<UniqueBase<T, Dx> const*>(this)->get_deleter()
                 );
             }
