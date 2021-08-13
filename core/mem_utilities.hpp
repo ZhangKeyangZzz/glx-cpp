@@ -101,7 +101,7 @@ namespace glx {
          * @return Return the status code representing whether the operation was successful.
          */
         template <typename T>
-        int fill_of_range(T *const arr, uint32 index, uint32 length, T &const value) noexcept {
+        int fill_of_range(T *const arr, uint32 index, uint32 length, T const& value) noexcept {
             while (length > 0) {
                 arr[index + length - 1] = value;
                 length--;
@@ -273,7 +273,7 @@ namespace glx {
             /// This function is a part of implementation of memory utility function `uninitialized_fill_of_range`.
             /// For trivially data, the only thing we need to do is copying the memory bytes to bytes, 
             template <typename T>
-            void __uninitialized_fill_of_range_unchecked(T *const arr, uint32 index, uint32 length, T &const value, std::true_type) noexcept {
+            void __uninitialized_fill_of_range_unchecked(T *const arr, uint32 index, uint32 length, T const& value, std::true_type) noexcept {
                 auto elementSize = sizeof(T);
                 while (length > 0) {
                     memmove(arr + index + length - 1, &value, elementSize);
@@ -285,7 +285,7 @@ namespace glx {
             /// For non-trivially data, we need to call utility function `construct` to construct these objects.
             /// NOTE: If dst[dstIndex] is already initialized, the behaviour of this function is UNDEFINED.
             template <typename T>
-            void __uninitialized_fill_of_range_unchecked(T *const arr, uint32 index, uint32 length, T &const value, std::false_type) noexcept {
+            void __uninitialized_fill_of_range_unchecked(T *const arr, uint32 index, uint32 length, T const& value, std::false_type) noexcept {
                 while (length > 0) {
                     construct(arr + index + length - 1, value);
                     length--;
@@ -304,7 +304,7 @@ namespace glx {
          * @return Return the status code representing whether the operation was successful.
          */
         template <typename T>
-        int uninitialized_fill_of_range(T *const arr, uint32 index, uint32 length, T &const value) noexcept {
+        int uninitialized_fill_of_range(T *const arr, uint32 index, uint32 length, T const& value) noexcept {
             if (arr == nullptr) {
                 return StatusCode::IllegalArgument;
             }
