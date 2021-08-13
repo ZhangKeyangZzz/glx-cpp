@@ -460,6 +460,13 @@ namespace glx {
             }
         }
         
+        /**
+         * Unique is an exclusive smart pointer, which fully holds the ownership of the memory space on a heap and 
+         * ensures that the memory on this heap is correctly released when the unique object ends its life cycle.
+         * This structure is a unique implementation of a single element.
+         * @author ZhangKeyangZzz
+         * @tparam T The type of object in this `Unique`
+         */
         template <typename T>
         struct Unique : public __ignore::UniqueBase<T, __ignore::SimpleObjectDeleter> {
         private:
@@ -481,6 +488,13 @@ namespace glx {
             operator bool() noexcept { return _Base::get() != nullptr; }
         };
 
+        /**
+         * Unique is an exclusive smart pointer, which fully holds the ownership of the memory space on a heap and 
+         * ensures that the memory on this heap is correctly released when the unique object ends its life cycle.
+         * This structure is a unique implementation of continuous memory.
+         * @author ZhangKeyangZzz
+         * @tparam T The type of objects in this `Unique`
+         */
         template <typename T>
         class Unique<T[]> : public __ignore::UniqueBase<T, __ignore::SimpleArrayDeleter> {
         private:
