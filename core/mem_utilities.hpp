@@ -526,7 +526,10 @@ namespace glx {
         };
 
         /**
-         * 
+         * A convenient utility for `Unique`
+         * @param[in] args arguments to construct a object of type `T`
+         * @tparam T The type of object.
+         * @tparam Args The argument types.
          */
         template <typename T, typename... Args>
 		inline Unique<T> make_unique(Args&&... args) noexcept {
