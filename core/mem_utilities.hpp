@@ -472,7 +472,7 @@ namespace glx {
             ~Unique() noexcept = default;
         public:
             Unique<T>& operator=(Unique<T> const&) = delete;
-            Unique<T>& operator=(Unique<T>&& rhs) noexcept { _Base::operator=(std::move(rhs)); }
+            Unique<T>& operator=(Unique<T>&& rhs) noexcept { _Base::operator=(std::move(rhs)); return *this; }
         public:
             T& operator*() noexcept { return *(_Base::get()); }
             T const& operator*() const noexcept { return *(_Base::get()); }
@@ -493,7 +493,7 @@ namespace glx {
             ~Unique() noexcept = default;
         public:
             Unique<T>& operator=(Unique<T> const&) = delete;
-            Unique<T>& operator=(Unique<T>&& rhs) noexcept { _Base::operator=(std::move(rhs)); }
+            Unique<T>& operator=(Unique<T>&& rhs) noexcept { _Base::operator=(std::move(rhs)); return *this; }
         public:
             T& operator*() noexcept { return *(_Base::get()); }
             T const& operator*() const noexcept { return *(_Base::get()); }
