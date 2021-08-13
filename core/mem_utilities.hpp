@@ -312,6 +312,197 @@ namespace glx {
             __ignore::__uninitialized_fill_of_range_unchecked(arr, index, length, value, IsTrivial());
             return StatusCode::Success;
         }
+
+        ///-------------------------------------------------------------------------------------
+        ///
+        /// Unique implementations.
+        ///
+        ///-------------------------------------------------------------------------------------
+        namespace __ignore {
+            struct SimpleObjectDeleter {
+                void operator()(void const* ptr) { delete ptr; }
+            };
+            struct SimpleArrayDeleter {
+                void operator()(void const* ptr) { delete[] ptr; }
+            };
+
+            ///
+            /// `UniqueBase` holds ownership of an object. Use the RAII feature to bind the life cycle of this object to `UniqueBase`
+            /// @author ZhangKeyangZzz
+            /// @tparam T The type of object holds by `UniqueBase`
+            /// @tparam Dx A callable object with separate parameters of type `T` specifing how to destory this object.
+            /// 
+            template <typename T, typename Dx>
+            class UniqueBase {
+                using PtrType = std::remove_reference_t<T>;
+                using DelType = std::remove_reference_t<Dx>;
+                PtrType* _ptr;
+                DelType  _deleter;      /// This field is UNSTABLE. What happened when MOVE from anther UniqueBase? 
+
+            private:
+                void _clear() noexcept;
+
+            public:
+                UniqueBase(T* ptr, Dx deleter) noexcept;
+                UniqueBase(UniqueBase<T, Dx> const& rhs) = delete;
+                UniqueBase(UniqueBase<T, Dx>&& rhs) noexcept;
+                ~UniqueBase() noexcept;
+
+            public:
+                UniqueBase<T, Dx>& operator=(UniqueBase<T, Dx> const& rhs) = delete;
+                UniqueBase<T, Dx>& operator=(UniqueBase<T, Dx>&& rhs) noexcept;
+                UniqueBase<T, Dx>& operator=(nullptr_t) noexcept;
+
+            public:
+                T* release() noexcept;
+                T* get() noexcept;
+                const T* get() const noexcept;
+                Dx& get_deleter() noexcept;
+                Dx const& get_deleter() const noexcept;
+                void reset(T* ptr = nullptr) noexcept;
+                void swap(UniqueBase<T, Dx>& rhs) noexcept;
+            };
+            
+            /// Delete internally held objects with the the deleter
+            template <typename T, typename Dx>
+            void UniqueBase<T, Dx>::_clear() noexcept {
+                if (_ptr != nullptr) {
+                    _deleter(_ptr);
+                    _ptr = nullptr;
+                }
+            }
+
+            /// Construct from a user-ptr and a specified deleter.
+            template <typename T, typename Dx>
+            UniqueBase<T, Dx>::UniqueBase(T* ptr, Dx deleter) noexcept : _ptr(ptr), _deleter(deleter) {
+            }
+
+            /// Move from anther `UniqueBase`.
+            template <typename T, typename Dx>
+            UniqueBase<T, Dx>::UniqueBase(UniqueBase<T, Dx>&& rhs) noexcept : _ptr(rhs._ptr), _deleter(std::forward<Dx>(rhs._deleter))  {
+                rhs._ptr = nullptr;
+            }
+
+            /// Destructor of `UniqueBase` ensuring destory the object.
+            template <typename T, typename Dx>
+            UniqueBase<T, Dx>::~UniqueBase() noexcept {
+                _clear();
+                destruct(&_deleter);
+            }
+            
+            /// Move from anther `UniqueBase`.
+            template <typename T, typename Dx>
+            UniqueBase<T, Dx>& UniqueBase<T, Dx>::operator=(UniqueBase<T, Dx>&& rhs) noexcept {
+                if (this != &rhs) {
+                    reset(rhs.release());
+                    _deleter = std::forward<Dx>(rhs._deleter);
+                }
+                return *this;
+            }
+
+            /// Clear this `UniqueBase`
+            template <typename T, typename Dx>
+            UniqueBase<T, Dx>& UniqueBase<T, Dx>::operator=(nullptr_t) noexcept {
+                reset();
+                return *this;
+            }
+
+            /// Release the ownership of the object.
+            template <typename T, typename Dx>
+            T* UniqueBase<T, Dx>::release() noexcept {
+                auto ptr = _ptr;
+                _ptr = nullptr;
+                return ptr;
+            }
+
+            /// Reset a new ptr.
+            template <typename T, typename Dx>
+            void UniqueBase<T, Dx>::reset(T* ptr) noexcept {
+                _clear();
+                _ptr = ptr;
+            }
+
+            /// swap between another UniqueBase.
+            template <typename T, typename Dx>
+            void UniqueBase<T, Dx>::swap(UniqueBase<T, Dx>& rhs) noexcept {
+                auto lp = release();
+                auto rp = rhs.release();
+                reset(rp);
+                rhs.reset(lp);
+            }
+
+            /// Get the raw ptr.
+            template <typename T, typename Dx>
+            T* UniqueBase<T, Dx>::get() noexcept {
+                return const_cast<T*>(
+                    static_cast<UniqueBase<T, Dx> const*>(this)->get()
+                );
+            }
+
+            /// Get the raw ptr.
+            template <typename T, typename Dx>
+            const T* UniqueBase<T, Dx>::get() const noexcept {
+                return _ptr;
+            }
+
+            /// Get the underlying deleter.
+            template <typename T, typename Dx>
+            Dx& UniqueBase<T, Dx>::get_deleter() noexcept {
+                return const_cast<T*>(
+                    static_cast<UniqueBase<T, Dx> const*>(this)->get_deleter()
+                );
+            }
+
+            /// Get the underlying deleter.
+            template <typename T, typename Dx>
+            Dx const& UniqueBase<T, Dx>::get_deleter() const noexcept {
+                return _deleter;
+            }
+        }
+        
+        template <typename T>
+        struct Unique : public __ignore::UniqueBase<T, __ignore::SimpleObjectDeleter> {
+        private:
+            using _Base = __ignore::UniqueBase<T, __ignore::SimpleObjectDeleter>;
+            using _Del  = __ignore::SimpleObjectDeleter;
+        public:
+            Unique(T* ptr) noexcept : _Base(ptr, _Del()) {}
+            Unique(Unique<T> const&) = delete;
+            Unique(Unique<T>&& rhs) noexcept : _Base(std::move(rhs)) {}
+            ~Unique() noexcept = default;
+        public:
+            Unique<T>& operator=(Unique<T> const&) = delete;
+            Unique<T>& operator=(Unique<T>&& rhs) noexcept { _Base::operator=(std::move(rhs)); }
+        public:
+            T& operator*() noexcept { return *(_Base::get()); }
+            T const& operator*() const noexcept { return *(_Base::get()); }
+            T* operator->() noexcept { return _Base::get(); }
+            T const* operator->() const noexcept { return _Base::get(); }
+            operator bool() noexcept { return _Base::get() != nullptr; }
+        };
+
+        template <typename T>
+        class Unique<T[]> : public __ignore::UniqueBase<T, __ignore::SimpleArrayDeleter> {
+        private:
+            using _Base = __ignore::UniqueBase<T, __ignore::SimpleArrayDeleter>;
+            using _Del  = __ignore::SimpleArrayDeleter;
+        public:
+            Unique(T* ptr) noexcept : _Base(ptr, _Del()) {}
+            Unique(Unique<T> const&) = delete;
+            Unique(Unique<T>&& rhs) noexcept : _Base(std::move(rhs)) {}
+            ~Unique() noexcept = default;
+        public:
+            Unique<T>& operator=(Unique<T> const&) = delete;
+            Unique<T>& operator=(Unique<T>&& rhs) noexcept { _Base::operator=(std::move(rhs)); }
+        public:
+            T& operator*() noexcept { return *(_Base::get()); }
+            T const& operator*() const noexcept { return *(_Base::get()); }
+            T& operator[](size_t index) noexcept { return *(_Base::get() + index); }
+            T const& operator[](size_t index) const noexcept { return *(_Base::get() + index); }
+            T* operator->() noexcept { return _Base::get(); }
+            T const* operator->() const noexcept { return _Base::get(); }
+            operator bool() noexcept { return _Base::get() != nullptr; }
+        };
     }
 }
 
