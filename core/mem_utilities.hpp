@@ -50,8 +50,8 @@ namespace glx {
          * @note If some errors is ocurred, throws the std::bad_alloc exception.
          */
         template <typename T>
-        inline T* allocate(uint32 count) noexcept {
-            auto totalBytes = uint32(count * sizeof(T));
+        inline T* allocate(usize count) noexcept {
+            auto totalBytes = usize(count * sizeof(T));
             auto ptr        = new byte[totalBytes];
             return reinterpret_cast<T*>(ptr);
         }
@@ -101,7 +101,7 @@ namespace glx {
          * @return Return the status code representing whether the operation was successful.
          */
         template <typename T>
-        int fill_of_range(T *const arr, uint32 index, uint32 length, T const& value) noexcept {
+        int fill_of_range(T *const arr, usize index, usize length, T const& value) noexcept {
             while (length > 0) {
                 arr[index + length - 1] = value;
                 length--;
@@ -117,7 +117,7 @@ namespace glx {
             /// This function is a part of implementation of memory utility function `copy_of_range`.
             /// For trivially data, the only thing we need to do is copying the memory bytes to bytes, 
             template <typename T>
-            void __copy_of_range_unchecked(T *const dst, const T* src, uint32 dstIndex, uint32 srcIndex, uint32 length, std::true_type) noexcept {
+            void __copy_of_range_unchecked(T *const dst, const T* src, usize dstIndex, usize srcIndex, usize length, std::true_type) noexcept {
                 auto totalBytes = length * sizeof(T);
                 memmove(dst, src, totalBytes);
             }
@@ -126,7 +126,7 @@ namespace glx {
             /// For non-trivially data, we need to call its `operator=` function to override these objects.
             /// NOTE: If dst[dstIndex] is not initialized, the behaviour of this function is UNDEFINED.
             template <typename T>
-            void __copy_of_range_unchecked(T *const dst, const T* src, uint32 dstIndex, uint32 srcIndex, uint32 length, std::false_type) noexcept {
+            void __copy_of_range_unchecked(T *const dst, const T* src, usize dstIndex, usize srcIndex, usize length, std::false_type) noexcept {
                 T* dstPtr = const_cast<T*>(dst + dstIndex);
                 T* srcPtr = const_cast<T*>(src + srcIndex);
                 if (dstPtr > srcPtr && dstPtr < srcPtr + length) {
@@ -157,7 +157,7 @@ namespace glx {
          * @return Return the status code representing whether the operation was successful.
          */
         template <typename T>
-        int copy_of_range(T *const dst, const T* src, uint32 dstIndex, uint32 srcIndex, uint32 length) noexcept {
+        int copy_of_range(T *const dst, const T* src, usize dstIndex, usize srcIndex, usize length) noexcept {
             if (dst == nullptr || src == nullptr || length == 0) {
                 return StatusCode::IllegalArgument;
             }
@@ -177,7 +177,7 @@ namespace glx {
          * @return Return the status code representing whether the operation was successful.
          */
         template <typename T>
-        int copy_of_range(T *const arr, uint32 dstIndex, uint32 srcIndex, uint32 length) noexcept {
+        int copy_of_range(T *const arr, usize dstIndex, usize srcIndex, usize length) noexcept {
             if (arr == nullptr || length == 0) {
                 return StatusCode::IllegalArgument;
             }
@@ -195,7 +195,7 @@ namespace glx {
             /// This function is a part of implementation of memory utility function `uninitialized_copy_of_range`.
             /// For trivially data, the only thing we need to do is copying the memory bytes to bytes, 
             template <typename T>
-            void __uninitialized_copy_of_range_unchecked(T *const dst, const T* src, uint32 dstIndex, uint32 srcIndex, uint32 length, std::true_type) noexcept {
+            void __uninitialized_copy_of_range_unchecked(T *const dst, const T* src, usize dstIndex, usize srcIndex, usize length, std::true_type) noexcept {
                 auto totalBytes = length * sizeof(T);
                 memmove(dst, src, totalBytes);
             }
@@ -204,7 +204,7 @@ namespace glx {
             /// For non-trivially data, we need to call utility function `construct` to construct these objects.
             /// NOTE: If dst[dstIndex] is already initialized, the behaviour of this function is UNDEFINED.
             template <typename T>
-            void __uninitialized_copy_of_range_unchecked(T *const dst, const T* src, uint32 dstIndex, uint32 srcIndex, uint32 length, std::false_type) noexcept {
+            void __uninitialized_copy_of_range_unchecked(T *const dst, const T* src, usize dstIndex, usize srcIndex, usize length, std::false_type) noexcept {
                 T* dstPtr = const_cast<T*>(dst + dstIndex);
                 T* srcPtr = const_cast<T*>(src + srcIndex);
                 if (dstPtr > srcPtr && dstPtr < srcPtr + length) {
@@ -235,7 +235,7 @@ namespace glx {
          * @return Return the status code representing whether the operation was successful.
          */
         template <typename T>
-        int uninitialized_copy_of_range(T *const dst, const T* src, uint32 dstIndex, uint32 srcIndex, uint32 length) noexcept {
+        int uninitialized_copy_of_range(T *const dst, const T* src, usize dstIndex, usize srcIndex, usize length) noexcept {
             if (dst == nullptr || src == nullptr || length == 0) {
                 return StatusCode::IllegalArgument;
             }
@@ -255,7 +255,7 @@ namespace glx {
          * @return Return the status code representing whether the operation was successful.
          */
         template <typename T>
-        int uninitialized_copy_of_range(T *const arr, uint32 dstIndex, uint32 srcIndex, uint32 length) noexcept {
+        int uninitialized_copy_of_range(T *const arr, usize dstIndex, usize srcIndex, usize length) noexcept {
             if (arr == nullptr || length == 0) {
                 return StatusCode::IllegalArgument;
             }
@@ -273,7 +273,7 @@ namespace glx {
             /// This function is a part of implementation of memory utility function `uninitialized_fill_of_range`.
             /// For trivially data, the only thing we need to do is copying the memory bytes to bytes, 
             template <typename T>
-            void __uninitialized_fill_of_range_unchecked(T *const arr, uint32 index, uint32 length, T const& value, std::true_type) noexcept {
+            void __uninitialized_fill_of_range_unchecked(T *const arr, usize index, usize length, T const& value, std::true_type) noexcept {
                 auto elementSize = sizeof(T);
                 while (length > 0) {
                     memmove(arr + index + length - 1, &value, elementSize);
@@ -285,7 +285,7 @@ namespace glx {
             /// For non-trivially data, we need to call utility function `construct` to construct these objects.
             /// NOTE: If dst[dstIndex] is already initialized, the behaviour of this function is UNDEFINED.
             template <typename T>
-            void __uninitialized_fill_of_range_unchecked(T *const arr, uint32 index, uint32 length, T const& value, std::false_type) noexcept {
+            void __uninitialized_fill_of_range_unchecked(T *const arr, usize index, usize length, T const& value, std::false_type) noexcept {
                 while (length > 0) {
                     construct(arr + index + length - 1, value);
                     length--;
@@ -304,7 +304,7 @@ namespace glx {
          * @return Return the status code representing whether the operation was successful.
          */
         template <typename T>
-        int uninitialized_fill_of_range(T *const arr, uint32 index, uint32 length, T const& value) noexcept {
+        int uninitialized_fill_of_range(T *const arr, usize index, usize length, T const& value) noexcept {
             if (arr == nullptr) {
                 return StatusCode::IllegalArgument;
             }
@@ -476,9 +476,10 @@ namespace glx {
             using _Base = __ignore::UniqueBase<T, __ignore::SimpleObjectDeleter<T>>;
             using _Del  = __ignore::SimpleObjectDeleter<T>;
         public:
-            explicit Unique(T* ptr) noexcept : _Base(ptr, _Del()) {}
-            explicit Unique(Unique<T> const&) = delete;
-            explicit Unique(Unique<T>&& rhs) noexcept : _Base(std::move(rhs)) {}
+            Unique() noexcept : _Base(nullptr, _Del()) {}
+            Unique(T* ptr) noexcept : _Base(ptr, _Del()) {}
+            Unique(Unique<T> const&) = delete;
+            Unique(Unique<T>&& rhs) noexcept : _Base(std::move(rhs)) {}
             ~Unique() noexcept = default;
         public:
             Unique<T>& operator=(Unique<T> const&) = delete;
@@ -505,25 +506,34 @@ namespace glx {
             using _Base = __ignore::UniqueBase<T, __ignore::SimpleArrayDeleter<T>>;
             using _Del  = __ignore::SimpleArrayDeleter<T>;
         public:
-            explicit Unique(T* ptr) noexcept : _Base(ptr, _Del()) {}
-            explicit Unique(Unique<T> const&) = delete;
-            explicit Unique(Unique<T>&& rhs) noexcept : _Base(std::move(rhs)) {}
+            Unique() noexcept : _Base(nullptr, _Del()) {}
+            Unique(T* ptr) noexcept : _Base(ptr, _Del()) {}
+            Unique(Unique<T[]> const&) = delete;
+            Unique(Unique<T[]>&& rhs) noexcept : _Base(std::move(rhs)) {}
             ~Unique() noexcept = default;
         public:
-            Unique<T[]>& operator=(Unique<T> const&) = delete;
+            Unique<T[]>& operator=(Unique<T[]> const&) = delete;
             Unique<T[]>& operator=(std::nullptr_t) { _Base::operator=(nullptr); return *this; };
-            Unique<T[]>& operator=(Unique<T>&& rhs) noexcept { _Base::operator=(std::move(rhs)); return *this; }
+            Unique<T[]>& operator=(Unique<T[]>&& rhs) noexcept { _Base::operator=(std::move(rhs)); return *this; }
         public:
             T& operator*() noexcept { return *(_Base::get()); }
             T const& operator*() const noexcept { return *(_Base::get()); }
-            T& operator[](size_t index) noexcept { return *(_Base::get() + index); }
-            T const& operator[](size_t index) const noexcept { return *(_Base::get() + index); }
+            T& operator[](usize index) noexcept { return *(_Base::get() + index); }
+            T const& operator[](usize index) const noexcept { return *(_Base::get() + index); }
             T* operator->() noexcept { return _Base::get(); }
             T const* operator->() const noexcept { return _Base::get(); }
             operator bool() noexcept { return _Base::get() != nullptr; }
         };
+
+        /**
+         * 
+         */
+        template <typename T, typename... Args>
+		inline Unique<T> make_unique(Args&&... args) noexcept {
+			Unique<T> uniq(new T(std::forward<Args>(args)...));
+			return Unique<T>(std::move(uniq));
+		}
     }
 }
 
 #endif
-

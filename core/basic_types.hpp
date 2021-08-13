@@ -42,6 +42,8 @@ namespace glx {
     using int32     = int32_t;
     using int64     = int64_t;
     using byte      = uint8;
+    using usize     = size_t;
+    using ssize     = int64;
 }
 
 #endif
