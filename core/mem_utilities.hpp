@@ -91,7 +91,7 @@ namespace glx {
         }
 
         /**
-         * Fill the initialized buffer `arr[index .. index + length) with the specified value.`
+         * Fill the initialized buffer `arr[index .. index + length)` with the specified value.
          * @author ZhangKeyangZzz
          * @param[in] arr The specified buffer.
          * @param[in] index The specified index.
@@ -104,6 +104,22 @@ namespace glx {
         int fill_of_range(T *const arr, usize index, usize length, T const& value) noexcept {
             while (length > 0) {
                 arr[index + length - 1] = value;
+                length--;
+            }
+        }
+
+        /**
+         * Destruct the initialized buffer `arr[index .. index + length)`.
+         * @author ZhangKeyangZzz
+         * @param[in] arr The specified buffer.
+         * @param[in] index The specified index.
+         * @param[in] length The length of the buffer.
+         * @tparam T The type of elements in the array.
+         */
+        template <typename T>
+        void destruct_of_range(T *const arr, usize index, usize length) noexcept {
+            while (length > 0) {
+                destruct(&arr[index + length - 1]);
                 length--;
             }
         }
