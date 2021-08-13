@@ -476,12 +476,13 @@ namespace glx {
             using _Base = __ignore::UniqueBase<T, __ignore::SimpleObjectDeleter<T>>;
             using _Del  = __ignore::SimpleObjectDeleter<T>;
         public:
-            Unique(T* ptr) noexcept : _Base(ptr, _Del()) {}
-            Unique(Unique<T> const&) = delete;
-            Unique(Unique<T>&& rhs) noexcept : _Base(std::move(rhs)) {}
+            explicit Unique(T* ptr) noexcept : _Base(ptr, _Del()) {}
+            explicit Unique(Unique<T> const&) = delete;
+            explicit Unique(Unique<T>&& rhs) noexcept : _Base(std::move(rhs)) {}
             ~Unique() noexcept = default;
         public:
             Unique<T>& operator=(Unique<T> const&) = delete;
+            Unique<T>& operator=(std::nullptr_t) { _Base::operator=(nullptr); return *this; };
             Unique<T>& operator=(Unique<T>&& rhs) noexcept { _Base::operator=(std::move(rhs)); return *this; }
         public:
             T& operator*() noexcept { return *(_Base::get()); }
@@ -504,12 +505,13 @@ namespace glx {
             using _Base = __ignore::UniqueBase<T, __ignore::SimpleArrayDeleter<T>>;
             using _Del  = __ignore::SimpleArrayDeleter<T>;
         public:
-            Unique(T* ptr) noexcept : _Base(ptr, _Del()) {}
-            Unique(Unique<T> const&) = delete;
-            Unique(Unique<T>&& rhs) noexcept : _Base(std::move(rhs)) {}
+            explicit Unique(T* ptr) noexcept : _Base(ptr, _Del()) {}
+            explicit Unique(Unique<T> const&) = delete;
+            explicit Unique(Unique<T>&& rhs) noexcept : _Base(std::move(rhs)) {}
             ~Unique() noexcept = default;
         public:
             Unique<T>& operator=(Unique<T> const&) = delete;
+            Unique<T>& operator=(std::nullptr_t) { _Base::operator=(nullptr); return *this; };
             Unique<T>& operator=(Unique<T>&& rhs) noexcept { _Base::operator=(std::move(rhs)); return *this; }
         public:
             T& operator*() noexcept { return *(_Base::get()); }
